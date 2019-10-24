@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="good.job.pj.sys.dao.SysProductDao">
+	<!-- 根据名字，数据数量查找数据 -->
+	<select id="findPageObjects"
+		resultType="good.job.pj.sys.entity.Products">
+		select * from sys_products
+		<include refid="queryWhereId" />
+		limit #{startIndex},#{pageSize}
+	</select>
+	<!--查找总行数 -->
+	<select id="getRowCount" resultType="int">
+		select count(*) from sys_products
+		<include refid="queryWhereId" />
+	</select>
+
+
+	<sql id="queryWhereId">
+		<where>
+			<if test="productname!=null and productname!=''">
+				productname like concat("%",#{productname},"%")
+			</if>
+		</where>
+	</sql>
+
+	<!-- 插入数据 -->
+	<insert id="insertObject"
+		parameterType="good.job.pj.sys.entity.Products">
+		insert into sys_products
+		(productname,price,url) values
+		(#{productname},#{price},#{url})
+	</insert>
+
+	<!-- 根据id找到单个数据 -->
+	<select id="findObjectById"
+		resultType="good.job.pj.sys.entity.Products">
+		select * from sys_products where id=#{id}
+	</select>
+	<!-- 修改数据 -->
+	<update id="updateObject"
+            parameterType="good.job.pj.sys.entity.Products">
+         update sys_products
+         set productname=#{productname},price=#{price},url=#{url} where id=#{id}
+    </update>
+	
+
+	<!-- 删除数据 -->
+	<delete id="deleteObjects">
+		delete from sys_products where id in
+		<foreach collection="array"
+		open="(" close=")" separator="," item="id">#{id}</foreach>
+	</delete>
+</mapper>

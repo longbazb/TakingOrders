@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//
+EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="good.job.pj.sys.dao.SysRoleDao">
+<select id="findPages" resultType="good.job.pj.sys.entity.SysRoleEntity">
+select *
+		from sys_roles
+		<include refid="queryWhereId" />
+		order by createdTime desc
+		limit #{startIndex},#{pageSize}
+</select>
+<select id="getRows" resultType="int">
+select count(*) from sys_roles
+<include refid="queryWhereId"></include>
+</select>
+	<insert id="insertObject"
+		parameterType="good.job.pj.sys.entity.SysRoleEntity" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into sys_roles
+		(id,name,note,createdTime,modifiedTime,
+		createdUser,modifiedUser)
+		values
+		(null,#{name},#{note},now(),now(),
+		#{createdUser},#{modifiedUser})
+	</insert>
+  <update id="updateObject" parameterType="good.job.pj.sys.entity.SysRoleEntity">
+	update sys_roles
+	<set>
+		<if test="name!=null and name!=''">
+			name=#{name},
+		</if>
+		<if test="note!=null and note!=''">
+			note=#{note},
+		</if>
+		<if test="modifiedUser!=null and modifiedUser!=''">
+			modifiedUser=#{modifiedUser},
+		</if>
+		modifiedTime=now()
+	</set>
+	where id=#{id}
+</update>
+	
+<sql id="queryWhereId">
+<where>
+<if test="name!=null and name!=''">
+name like concat("%",#{name},"%")
+</if>
+</where>
+</sql>
+   <resultMap type="good.job.pj.common.vo.SysRoleMenuVo"
+              id="sysRoleMenuVo">
+        <!-- 尝试自己实现：思考讨论 -->
+        <!-- 自己补充实现 -->
+        <collection property="menuIds"
+                     column="id"
+                     select="good.job.pj.sys.dao.SysRoleMenuDao.findMenuIdsByRoleId">
+        </collection>
+   </resultMap>
+   <!-- 基于角色id查询角色信息 -->
+   <select id="findObjectById"
+           resultMap="sysRoleMenuVo">
+           select id,name,note
+           from sys_roles
+           where id=#{id}        
+   </select>
+     <delete id="deleteObject"
+             parameterType="int">
+        delete from sys_roles
+        where id=#{id}
+     </delete>
+     	<select id="findObjects"
+            resultType="good.job.pj.common.vo.CheckBox"> 
+           select id,name
+           from sys_roles
+    
+    </select>
+</mapper>
