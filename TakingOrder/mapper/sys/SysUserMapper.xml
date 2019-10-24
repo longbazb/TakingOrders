@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="good.job.pj.sys.dao.SysUserDao">
+	<resultMap id="sysUserMap" type="good.job.pj.common.vo.SysUserDeptVo">
+		<!-- 关联查询 -->
+		<association property="sysDeptEntity" column="deptId"
+			select="good.job.pj.sys.dao.SysDeptDao.findById">
+		</association>
+	</resultMap>
+	<select id="findPageObjects" resultMap="sysUserMap">
+		select * from sys_users
+		<include refid="queryWhereId" />
+		limit #{startIndex},#{pageSize}
+	</select>
+	<select id="getRowCount" resultType="int">
+		select count(*) from sys_users
+		<include refid="queryWhereId" />
+	</select>
+	<sql id="queryWhereId">
+		<where>
+			<if test="username!=null and username!=''">
+				username like concat("%",#{username},"%")
+			</if>
+		</where>
+	</sql>
+	<update id="validById">
+		update sys_users
+		set valid=#{valid},
+		modifiedUser=#{modifiedUser},
+		modifiedTime=now()
+		where id=#{id}
+	</update>
+	<select id="findObjectById" parameterType="int"
+		resultMap="sysUserMap">
+		select *
+		from sys_users
+		where id=#{id}
+	</select>
+	<insert id="insertObject"
+		parameterType="good.job.pj.sys.entity.SysUserEntity" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into sys_users
+		(username,password,deptId,email,mobile,salt,valid,
+		createdTime,modifiedTime,createdUser,modifiedUser)
+		values
+		(#{username},#{password},#{deptId},#{email},#{mobile},#{salt},#{valid},
+		now(),now(),#{createdUser},#{modifiedUser})
+	</insert>
+	<update id="updateObject"
+		parameterType="good.job.pj.sys.entity.SysUserEntity">
+		update sys_users
+		<set>
+			<if test="username!=null and username!=''">
+				username=#{username},
+			</if>
+			<if test="email!=null and email!=''">
+				email=#{email},
+			</if>
+			<if test="mobile!=null and mobile!=''">
+				mobile=#{mobile},
+			</if>
+			<if test="deptId!=null and deptId!=''">
+				deptId=#{deptId},
+			</if>
+
+			<if test="modifiedUser!=null and modifiedUser!=''">
+				modifiedUser=#{modifiedUser},
+			</if>
+			modifiedTime=now()
+		</set>
+		where id=#{id}
+	</update>
+	
+	<select id="findUserByUserName"
+           resultType="good.job.pj.sys.entity.SysUserEntity">
+      select *
+      from sys_users  
+      where username=#{username}
+   </select>
+   
+   <update id="updatePassword">
+         update sys_users
+         set password=#{password},
+             salt=#{salt},
+             modifiedTime=now()
+         where id=#{id}
+</update>
+</mapper>
